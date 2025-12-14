@@ -1,0 +1,90 @@
+========================================================================
+AI SPARK HACKATHON - SUNUM RAPORU
+========================================================================
+
+TAKIM ADI: [Ekip adınızı buraya yazın]
+
+------------------------------------------------------------------------
+1. PROBLEM TANIMI
+------------------------------------------------------------------------
+İstanbul emlak piyasasında yeni mezun/araştırma görevlisi için veri odaklı
+yatırım danışmanı sistemi geliştirme. Evin adil değerini (Fair Value) 
+hesaplayarak "Fırsat/Normal/Pahalı" yatırım tavsiyesi verme.
+
+------------------------------------------------------------------------
+2. VERİ ÖN İŞLEME (Data Preprocessing)
+------------------------------------------------------------------------
+[Buraya neler yaptığınızı yazın]
+- Price sütunu temizleme: TL, nokta, virgül kaldırma
+- Missing values işleme: [Hangi yöntem?]
+- Krediye uygun olmayan evlerin filtrelenmesi
+- Outlier tespiti ve işleme: [Hangi yöntem?]
+- [Diğer işlemler...]
+
+------------------------------------------------------------------------
+3. FEATURE ENGINEERING
+------------------------------------------------------------------------
+[Buraya hangi özellikleri kullandığınızı yazın]
+- Kullanılan özellikler: [Konum, m2, Bina Yaşı, ...]
+- Çıkarılan özellikler: [Gereksiz sütunlar...]
+- Oluşturulan yeni özellikler: [Varsa...]
+- Encoding yöntemleri: [One-hot, Label encoding...]
+
+------------------------------------------------------------------------
+4. MODEL SEÇİMİ VE EĞİTİM
+------------------------------------------------------------------------
+[Buraya model detaylarınızı yazın]
+- Kullanılan algoritma(lar): [XGBoost, Random Forest, ...]
+- Hyperparameter tuning: [Grid Search, Random Search?]
+- Train/Test split: %80 - %20
+- Cross-validation: [K-Fold?]
+
+------------------------------------------------------------------------
+5. MODEL PERFORMANSI
+------------------------------------------------------------------------
+[Buraya metriklerinizi yazın]
+- RMSE (Root Mean Squared Error): [Değer]
+- R-Kare (R-Squared): [Değer]
+- MAE (Mean Absolute Error): [Değer]
+- Overfitting kontrolü: [Nasıl yaptınız?]
+
+------------------------------------------------------------------------
+6. KARAR MEKANİZMASI (Business Logic)
+------------------------------------------------------------------------
+[Buraya karar mantığınızı yazın]
+- Threshold belirleme yöntemi: [Nasıl belirlediniz?]
+- FIRSAT: Tahmin - Gerçek > [+X%]
+- NORMAL: [Y% ile Z% arası]
+- PAHALI: Tahmin - Gerçek < [-W%]
+
+------------------------------------------------------------------------
+7. ARAYÜZ (User Interface)
+------------------------------------------------------------------------
+- Kullanılan teknoloji: [Streamlit/Gradio/Web]
+- Özellikler: [Neler giriliyor?]
+- Çıktı formatı: [Tahmin + Tavsiye]
+
+------------------------------------------------------------------------
+8. ZORLUKLAR VE ÇÖZÜMLER
+------------------------------------------------------------------------
+[Buraya karşılaştığınız zorlukları yazın]
+- Zorluk 1: [Açıklama]
+  Çözüm: [Nasıl çözdünüz?]
+- Zorluk 2: [Açıklama]
+  Çözüm: [Nasıl çözdünüz?]
+
+------------------------------------------------------------------------
+9. GELİŞTİRME ÖNERİLERİ (Future Work)
+------------------------------------------------------------------------
+[Buraya gelecekte ne yapılabileceğini yazın]
+- Öneri 1: [...]
+- Öneri 2: [...]
+
+------------------------------------------------------------------------
+10. SONUÇ
+------------------------------------------------------------------------
+[Buraya kısa bir özet yazın]
+Modelimiz [RMSE/R2 değerleri] ile başarılı tahminler yapıyor ve
+kullanıcılara güvenilir yatırım tavsiyeleri sunuyor.
+
+========================================================================

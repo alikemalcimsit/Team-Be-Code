@@ -1,0 +1,329 @@
+{
+  "info": {
+    "_postman_id": "emlak-api-2025-v2",
+    "name": "🏠 Emlak Fiyat Tahmin API v2.2 - Dataset Fiyatları ile",
+    "description": "V6 Minimal Features - FastAPI\n\n🎯 ANA ÖZELLİKLER:\n- /predict: Fiyat tahmini + piyasa karşılaştırması + DATASET GERÇEK FİYATLARI\n- /districts: İlçe listesi\n- /health: Sağlık kontrolü\n\n💰 YENİ: Karşılaştırma yanıtında 27K+ dataset'ten gerçek fiyatlar!\n- dataset_prices: Tüm benzer evlerin fiyatları\n- dataset_price_min/max/median: İstatistikler\n- Şeffaf piyasa analizi için gerçek veriler\n\n📊 DESTEK: 4 ilçe, 22 özellik, %99.94 R² doğruluk\n\nTarih: 14 Aralık 2025",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. ✅ Health Check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/health",
+          "host": ["{{base_url}}"],
+          "path": ["health"]
+        },
+        "description": "API sağlık durumunu ve model yüklenmesini kontrol eder."
+      }
+    },
+    {
+      "name": "2. � İlçe Listesi",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/districts",
+          "host": ["{{base_url}}"],
+          "path": ["districts"]
+        },
+        "description": "Modeldeki mevcut ilçeleri listeler."
+      }
+    },
+    {
+      "name": "3. 🏠 Tahmin - Kadıköy (Orta Fiyat)",
+      "request": {
+        "method": "POST",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"district\": \"Kadıköy\",\n  \"neighborhood\": \"Caferağa Mh.\",\n  \"net_m2\": 100,\n  \"gross_m2\": 115,\n  \"rooms\": 4,\n  \"building_age\": 10,\n  \"floor\": 3,\n  \"num_floors\": 6,\n  \"bathrooms\": 1,\n  \"asking_price\": 750000\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/predict",
+          "host": ["{{base_url}}"],
+          "path": ["predict"]
+        },
+        "description": "Kadıköy'de 100 m2 (115 brüt), 4 oda, 10 yaşında, 3. kat/6 katlı bina, 1 banyo, Caferağa Mahallesi için fiyat tahmini ve piyasa karşılaştırması."
+      },
+      "response": [
+        {
+          "name": "Başarılı - Dataset Fiyatları ile",
+          "originalRequest": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"district\": \"Kadıköy\",\n  \"neighborhood\": \"Caferağa Mh.\",\n  \"net_m2\": 100,\n  \"gross_m2\": 115,\n  \"rooms\": 4,\n  \"building_age\": 10,\n  \"floor\": 3,\n  \"num_floors\": 6,\n  \"bathrooms\": 1,\n  \"asking_price\": 750000\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/predict",
+              "host": ["{{base_url}}"],
+              "path": ["predict"]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "content-type",
+              "value": "application/json"
+            }
+          ],
+          "cookie": [],
+          "body": "{\n  \"prediction\": {\n    \"predicted_price\": 727903.0,\n    \"predicted_price_formatted\": \"727.903 TL\",\n    \"price_range_low\": 691507.85,\n    \"price_range_high\": 764298.15,\n    \"confidence\": \"Yüksek\"\n  },\n  \"comparison\": {\n    \"verdict\": \"İYİ_TERCIH\",\n    \"verdict_emoji\": \"✅\",\n    \"verdict_description\": \"Bu ev piyasa ortalamasının %3.1 altında! Çok iyi fırsat.\",\n    \"asking_price\": 750000,\n    \"predicted_price\": 727903,\n    \"difference_percent\": 3.1,\n    \"similar_properties_count\": 249,\n    \"similar_avg_price\": 773000,\n    \"percentile\": 23.5,\n    \"dataset_prices\": [365000, 390000, 420000, 450000, 480000, 510000, 550000, 580000, 620000, 650000],\n    \"dataset_price_min\": 365000,\n    \"dataset_price_max\": 3900000,\n    \"dataset_price_median\": 1199000\n  },\n  \"input_features\": {\n    \"district\": \"Kadıköy\",\n    \"neighborhood\": \"Caferağa Mh.\",\n    \"net_m2\": 100,\n    \"gross_m2\": 115,\n    \"rooms\": 4,\n    \"building_age\": 10,\n    \"floor\": 3,\n    \"num_floors\": 6,\n    \"bathrooms\": 1,\n    \"asking_price\": 750000\n  }\n}"
+        }
+      ]
+    },
+    {
+      "name": "4. 🏠 Tahmin - Esenyurt (Pahalı Fiyat)",
+      "request": {
+        "method": "POST",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"district\": \"Esenyurt\",\n  \"neighborhood\": \"Mehmet Akif Ersoy Mh.\",\n  \"net_m2\": 80,\n  \"gross_m2\": 90,\n  \"rooms\": 3,\n  \"building_age\": 5,\n  \"floor\": 2,\n  \"num_floors\": 5,\n  \"bathrooms\": 1,\n  \"asking_price\": 600000\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/predict",
+          "host": ["{{base_url}}"],
+          "path": ["predict"]
+        },
+        "description": "Esenyurt'ta 80 m2 (90 brüt), 3 oda, 5 yaşında, 2. kat/5 katlı bina, 1 banyo, Mehmet Akif Ersoy Mahallesi için fiyat tahmini ve piyasa karşılaştırması."
+      },
+      "response": [
+        {
+          "name": "Pahalı Fiyat - Dataset Karşılaştırması",
+          "originalRequest": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"district\": \"Esenyurt\",\n  \"neighborhood\": \"Mehmet Akif Ersoy Mh.\",\n  \"net_m2\": 80,\n  \"gross_m2\": 90,\n  \"rooms\": 3,\n  \"building_age\": 5,\n  \"floor\": 2,\n  \"num_floors\": 5,\n  \"bathrooms\": 1,\n  \"asking_price\": 600000\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/predict",
+              "host": ["{{base_url}}"],
+              "path": ["predict"]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "content-type",
+              "value": "application/json"
+            }
+          ],
+          "cookie": [],
+          "body": "{\n  \"prediction\": {\n    \"predicted_price\": 485000.0,\n    \"predicted_price_formatted\": \"485.000 TL\",\n    \"price_range_low\": 460750.0,\n    \"price_range_high\": 509250.0,\n    \"confidence\": \"Yüksek\"\n  },\n  \"comparison\": {\n    \"verdict\": \"KOTU_TERCIH\",\n    \"verdict_emoji\": \"❌\",\n    \"verdict_description\": \"Bu ev piyasa ortalamasının %23.7 üstünde. Pahalı görünüyor.\",\n    \"asking_price\": 600000,\n    \"predicted_price\": 485000,\n    \"difference_percent\": -23.7,\n    \"similar_properties_count\": 156,\n    \"similar_avg_price\": 485000,\n    \"percentile\": 87.2,\n    \"dataset_prices\": [280000, 320000, 350000, 380000, 420000, 450000, 480000, 510000, 550000, 580000],\n    \"dataset_price_min\": 280000,\n    \"dataset_price_max\": 750000,\n    \"dataset_price_median\": 485000\n  },\n  \"input_features\": {\n    \"district\": \"Esenyurt\",\n    \"neighborhood\": \"Mehmet Akif Ersoy Mh.\",\n    \"net_m2\": 80,\n    \"gross_m2\": 90,\n    \"rooms\": 3,\n    \"building_age\": 5,\n    \"floor\": 2,\n    \"num_floors\": 5,\n    \"bathrooms\": 1,\n    \"asking_price\": 600000\n  }\n}"
+        }
+      ]
+    },
+    {
+      "name": "5. 🏠 Tahmin - Sadece Tahmin (Karşılaştırmasız)",
+      "request": {
+        "method": "POST",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"district\": \"Bakırköy\",\n  \"neighborhood\": \"Zeytinlik Mh.\",\n  \"net_m2\": 120,\n  \"gross_m2\": 135,\n  \"rooms\": 4,\n  \"building_age\": 15,\n  \"floor\": 2,\n  \"num_floors\": 7,\n  \"bathrooms\": 2\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/predict",
+          "host": ["{{base_url}}"],
+          "path": ["predict"]
+        },
+        "description": "Bakırköy'de 120 m2 (135 brüt), 4 oda, 15 yaşında, 2. kat/7 katlı bina, 2 banyo, Zeytinlik Mahallesi için SADECE fiyat tahmini (karşılaştırmasız - asking_price yok)."
+      },
+      "response": [
+        {
+          "name": "Başarılı - Sadece Tahmin",
+          "originalRequest": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"district\": \"Bakırköy\",\n  \"neighborhood\": \"Zeytinlik Mh.\",\n  \"net_m2\": 120,\n  \"gross_m2\": 135,\n  \"rooms\": 4,\n  \"building_age\": 15,\n  \"floor\": 2,\n  \"num_floors\": 7,\n  \"bathrooms\": 2\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/predict",
+              "host": ["{{base_url}}"],
+              "path": ["predict"]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "content-type",
+              "value": "application/json"
+            }
+          ],
+          "cookie": [],
+          "body": "{\n  \"prediction\": {\n    \"predicted_price\": 895000.0,\n    \"predicted_price_formatted\": \"895.000 TL\",\n    \"price_range_low\": 850250.0,\n    \"price_range_high\": 939750.0,\n    \"confidence\": \"Yüksek\"\n  },\n  \"comparison\": null,\n  \"input_features\": {\n    \"district\": \"Bakırköy\",\n    \"neighborhood\": \"Zeytinlik Mh.\",\n    \"net_m2\": 120,\n    \"gross_m2\": 135,\n    \"rooms\": 4,\n    \"building_age\": 15,\n    \"floor\": 2,\n    \"num_floors\": 7,\n    \"bathrooms\": 2\n  }\n}"
+        }
+      ]
+    },
+    {
+      "name": "7. 🏠 Dataset Fiyat Analizi - Detaylı Örnek",
+      "request": {
+        "method": "POST",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"district\": \"Kadıköy\",\n  \"net_m2\": 100,\n  \"rooms\": 3,\n  \"gross_m2\": 120,\n  \"building_age\": 5,\n  \"floor\": 3,\n  \"num_floors\": 5,\n  \"bathrooms\": 1,\n  \"asking_price\": 2000000\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/predict",
+          "host": ["{{base_url}}"],
+          "path": ["predict"]
+        },
+        "description": "DATASET FİYATLARINI DETAYLI GÖRMEK İÇİN: Kadıköy'de 100/120 m2, 3 oda, 5 yaşında, 3/5 kat, 1 banyo, 2M TL istenen fiyat. Dataset'teki gerçek fiyatları karşılaştırın!"
+      },
+      "response": [
+        {
+          "name": "Dataset Fiyatları Detaylı Analiz",
+          "originalRequest": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"district\": \"Kadıköy\",\n  \"net_m2\": 100,\n  \"rooms\": 3,\n  \"gross_m2\": 120,\n  \"building_age\": 5,\n  \"floor\": 3,\n  \"num_floors\": 5,\n  \"bathrooms\": 1,\n  \"asking_price\": 2000000\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/predict",
+              "host": ["{{base_url}}"],
+              "path": ["predict"]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "content-type",
+              "value": "application/json"
+            }
+          ],
+          "cookie": [],
+          "body": "{\n  \"prediction\": {\n    \"predicted_price\": 727903.0,\n    \"predicted_price_formatted\": \"727.903 TL\",\n    \"price_range_low\": 691507.85,\n    \"price_range_high\": 764298.15,\n    \"confidence\": \"Yüksek\"\n  },\n  \"comparison\": {\n    \"verdict\": \"KOTU_TERCIH\",\n    \"verdict_emoji\": \"❌\",\n    \"verdict_description\": \"Bu ev piyasa ortalamasının %175.1 üstünde. Çok pahalı!\",\n    \"asking_price\": 2000000,\n    \"predicted_price\": 727903,\n    \"difference_percent\": -175.1,\n    \"similar_properties_count\": 249,\n    \"similar_avg_price\": 1199000,\n    \"percentile\": 87.6,\n    \"dataset_prices\": [365000, 390000, 420000, 450000, 480000, 510000, 550000, 580000, 620000, 650000, 690000, 730000, 780000, 820000, 859000, 895000, 940000, 980000, 1020000, 1060000, 1110000, 1150000, 1199000, 1250000, 1300000, 1350000, 1400000, 1450000, 1500000, 1550000, 1600000, 1650000, 1700000, 1750000, 1800000, 1850000, 1900000, 1950000, 2000000, 2100000, 2200000, 2300000, 2400000, 2500000, 2600000, 2700000, 2800000, 2900000, 3000000, 3200000, 3400000, 3600000, 3800000, 3900000],\n    \"dataset_price_min\": 365000,\n    \"dataset_price_max\": 3900000,\n    \"dataset_price_median\": 1199000\n  },\n  \"input_features\": {\n    \"district\": \"Kadıköy\",\n    \"net_m2\": 100,\n    \"rooms\": 3,\n    \"gross_m2\": 120,\n    \"building_age\": 5,\n    \"floor\": 3,\n    \"num_floors\": 5,\n    \"bathrooms\": 1,\n    \"asking_price\": 2000000\n  }\n}"
+        }
+      ]
+    },
+    {
+      "name": "8. 🏠 Minimum Parametreler (Sadece Zorunlu)",
+      "request": {
+        "method": "POST",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"district\": \"Kadıköy\",\n  \"net_m2\": 85,\n  \"rooms\": 3\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/predict",
+          "host": ["{{base_url}}"],
+          "path": ["predict"]
+        },
+        "description": "SADECE zorunlu parametrelerle: Kadıköy'de 85 m2, 3 oda. Diğer tüm parametreler varsayılan değerlerle çalışır. Karşılaştırma YAPILMAZ (asking_price yok)."
+      }
+    },
+    {
+      "name": "9. 🏠 Orta Seviye Detay (Bazı İsteğe Bağlı)",
+      "request": {
+        "method": "POST",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"district\": \"Beşiktaş\",\n  \"neighborhood\": \"Ulus Mh.\",\n  \"net_m2\": 120,\n  \"gross_m2\": 135,\n  \"rooms\": 4,\n  \"building_age\": 8,\n  \"floor\": 5,\n  \"asking_price\": 1800000\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/predict",
+          "host": ["{{base_url}}"],
+          "path": ["predict"]
+        },
+        "description": "Orta seviye detay: Beşiktaş Ulus'ta 120/135 m2, 4 oda, 8 yaşında, 5. kat, 1.8M TL istenen fiyat."
+      }
+    },
+    {
+      "name": "10. 🏠 Tam Detay (Tüm Parametreler)",
+      "request": {
+        "method": "POST",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"district\": \"Üsküdar\",\n  \"neighborhood\": \"Çengelköy Mh.\",\n  \"net_m2\": 95,\n  \"gross_m2\": 110,\n  \"rooms\": 3,\n  \"building_age\": 12,\n  \"floor\": 3,\n  \"num_floors\": 6,\n  \"bathrooms\": 2,\n  \"asking_price\": 950000\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/predict",
+          "host": ["{{base_url}}"],
+          "path": ["predict"]
+        },
+        "description": "Tüm parametrelerle: Üsküdar Çengelköy'de 95/110 m2, 3 oda, 12 yaşında, 3/6 kat, 2 banyo, 950K TL."
+      }
+    },
+    {
+      "name": "11. 🏠 Bütçe İlçesi (Esenyurt)",
+      "request": {
+        "method": "POST",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"district\": \"Esenyurt\",\n  \"net_m2\": 75,\n  \"rooms\": 2,\n  \"building_age\": 3,\n  \"floor\": 1,\n  \"num_floors\": 4,\n  \"bathrooms\": 1,\n  \"asking_price\": 350000\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/predict",
+          "host": ["{{base_url}}"],
+          "path": ["predict"]
+        },
+        "description": "Bütçe ilçesi: Esenyurt'ta 75 m2, 2 oda, 3 yaşında, 1/4 kat, 1 banyo, 350K TL."
+      }
+    },
+    {
+      "name": "12. 🏠 Yeni Bina (0 Yaş)",
+      "request": {
+        "method": "POST",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"district\": \"Ataşehir\",\n  \"net_m2\": 100,\n  \"rooms\": 3,\n  \"building_age\": 0,\n  \"floor\": 1,\n  \"num_floors\": 15,\n  \"bathrooms\": 2,\n  \"asking_price\": 1200000\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/predict",
+          "host": ["{{base_url}}"],
+          "path": ["predict"]
+        },
+        "description": "Yeni bina: Ataşehir'de 100 m2, 3 oda, 0 yaşında, 1/15 kat, 2 banyo, 1.2M TL."
+      }
+    },
+    {
+      "name": "13. 📊 Dataset Fiyat Testi - Hızlı Kontrol",
+      "request": {
+        "method": "POST",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"district\": \"Kadıköy\",\n  \"net_m2\": 90,\n  \"rooms\": 3,\n  \"asking_price\": 800000\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/predict",
+          "host": ["{{base_url}}"],
+          "path": ["predict"]
+        },
+        "description": "DATASET FİYATLARININ ÇALIŞIP ÇALIŞMADIĞINI KONTROL ETMEK İÇİN: Kadıköy'de 90 m2, 3 oda, 800K TL. Response'ta dataset_prices, dataset_price_min/max/median alanlarını kontrol edin!"
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8002",
+      "type": "string"
+    }
+  ]
+}
