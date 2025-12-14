@@ -77,11 +77,50 @@ df['Floor'] = df['Floor location'].replace(floor_map)
 df['Floor'] = pd.to_numeric(df['Floor'], errors='coerce').fillna(2)
 df['Bathrooms'] = pd.to_numeric(df['Number of bathrooms'], errors='coerce').fillna(1)
 
+# Available for Loan - normalize to 0/1 if column present
+if 'Available for Loan' in df.columns:
+    def _avail_map(x):
+        if pd.isna(x):
+            return 0
+        s = str(x).strip().lower()
+        if s in ['1', '1.0', 'true', 'yes', 'y', 'evet', 'var', 'available']:
+            return 1
+        if s in ['0', '0.0', 'false', 'no', 'n', 'hayir', 'yok', 'not available', 'not_available']:
+            return 0
+        # fallback: check if numeric
+        try:
+            v = float(s)
+            return 1 if v > 0 else 0
+        except Exception:
+            return 0
+
+    df['Available_for_Loan'] = df['Available for Loan'].apply(_avail_map)
+else:
+    df['Available_for_Loan'] = 0
+
 # Clean
 df = df.dropna(subset=['Price', 'Net_m2', 'Rooms', 'District'])
 df = df[(df['Price'] > 100000) & (df['Price'] < 10000000)]
 df = df[(df['Net_m2'] > 20) & (df['Net_m2'] < 600)]
 print(f"✅ Clean data: {df.shape[0]} rows")
+
+# =============================================================================
+# Heating system normalization
+# Detect possible heating-related column names and create a normalized text column
+# =============================================================================
+heating_candidates = ['Heating', 'Heating System', 'Heating Type', 'Isıtma', 'Isıtma Sistemi', 'Heating_System', 'HeatingType']
+heating_col = None
+for c in heating_candidates:
+    if c in df.columns:
+        heating_col = c
+        break
+
+if heating_col:
+    df['Heating_raw'] = df[heating_col].fillna('').astype(str).str.lower()
+else:
+    # try to infer from other columns or set empty
+    df['Heating_raw'] = ''
+
 
 # =============================================================================
 # 3. TARGET ENCODING
@@ -151,6 +190,22 @@ def engineer_features(data, district_enc, neigh_enc, global_mean):
     
     # Expected price
     df['Expected'] = df['District_enc'] * df['Net_m2'] / 100
+
+    # Pass-through for available for loan (already normalized in preprocessing)
+    if 'Available_for_Loan' in df.columns:
+        df['Available_for_Loan'] = df['Available_for_Loan'].fillna(0).astype(int)
+
+    # Heating flags (from normalized Heating_raw column created in preprocessing)
+    if 'Heating_raw' in df.columns:
+        df['Heating_Natural_Gas'] = df['Heating_raw'].str.contains('doğalgaz|dogalgaz|natural|gas', regex=True).fillna(False).astype(int)
+        df['Heating_Central'] = df['Heating_raw'].str.contains('merkezi|central|district', regex=True).fillna(False).astype(int)
+        df['Heating_Electric'] = df['Heating_raw'].str.contains('elektrik|electric', regex=True).fillna(False).astype(int)
+        df['Heating_Stove'] = df['Heating_raw'].str.contains('soba|stove|wood', regex=True).fillna(False).astype(int)
+    else:
+        df['Heating_Natural_Gas'] = 0
+        df['Heating_Central'] = 0
+        df['Heating_Electric'] = 0
+        df['Heating_Stove'] = 0
     
     return df
 
@@ -188,6 +243,10 @@ feature_columns = [
     
     # Categories (4)
     'Is_Luxury', 'Luxury_m2', 'Is_Budget', 'Is_New',
+    # Available for loan flag
+    'Available_for_Loan',
+    # Heating system flags
+    'Heating_Natural_Gas', 'Heating_Central', 'Heating_Electric', 'Heating_Stove',
     
     # Expected (1)
     'Expected'

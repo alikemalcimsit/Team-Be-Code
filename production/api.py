@@ -105,6 +105,8 @@ class PropertyInput(BaseModel):
     floor: Optional[int] = Field(2, ge=-3, le=30, description="🏠 İSTEĞE BAĞLI: Bulunduğu kat (-3: bodrum, 0: zemin, varsayılan: 2)")
     num_floors: Optional[int] = Field(5, ge=1, le=50, description="🏢 İSTEĞE BAĞLI: Bina toplam kat sayısı (varsayılan: 5)")
     bathrooms: Optional[int] = Field(1, ge=1, le=5, description="🚿 İSTEĞE BAĞLI: Banyo sayısı (varsayılan: 1)")
+    available_for_loan: Optional[bool] = Field(None, description="💳 İSTEĞE BAĞLI: Krediye uygunluk (True/False). Eğer belirtilmezse model varsayılan davranışını kullanır.")
+    heating: Optional[str] = Field(None, description="🔥 İSTEĞE BAĞLI: Isıtma tipi/metni (örn: 'Doğalgaz', 'Merkezi', 'Soba', 'Elektrik')")
 
     # KARŞILAŞTIRMA İÇİN
     asking_price: Optional[float] = Field(None, description="💰 İSTEĞE BAĞLI: İstenen fiyat (TL) - piyasa karşılaştırması için")
@@ -175,6 +177,26 @@ def engineer_features(data: dict) -> np.ndarray:
     is_budget = 1 if district in BUDGET_DISTRICTS else 0
     is_new = 1 if building_age <= 5 else 0
     expected = district_value * net_m2 / 100
+    # Heating system normalization -> create binary indicators
+    heating = data.get('heating', '')
+    if heating is None:
+        heating = ''
+    heating_s = str(heating).strip().lower()
+    is_natural_gas = 1 if any(k in heating_s for k in ('doğalgaz', 'dogalgaz', 'natural', 'gas')) else 0
+    is_central = 1 if any(k in heating_s for k in ('merkezi', 'central', 'district')) else 0
+    is_electric = 1 if any(k in heating_s for k in ('elektrik', 'electric')) else 0
+    is_stove = 1 if any(k in heating_s for k in ('soba', 'stove', 'wood')) else 0
+    # Optional loan availability feature (dataset column: 'Available for Loan')
+    avail_loan = data.get('available_for_loan')
+    # Normalize various possible inputs to 0/1
+    if isinstance(avail_loan, str):
+        avail_loan_num = 1 if avail_loan.strip().lower() in ('available', 'yes', 'true', '1') else 0
+    elif isinstance(avail_loan, (int, float)):
+        avail_loan_num = 1 if avail_loan else 0
+    elif isinstance(avail_loan, bool):
+        avail_loan_num = 1 if avail_loan else 0
+    else:
+        avail_loan_num = 0
     
     features = {
         'Net_m2': net_m2,
@@ -198,7 +220,13 @@ def engineer_features(data: dict) -> np.ndarray:
         'Luxury_m2': luxury_m2,
         'Is_Budget': is_budget,
         'Is_New': is_new,
-        'Expected': expected
+        'Expected': expected,
+        'Available_for_Loan': avail_loan_num
+        ,
+        'Heating_Natural_Gas': is_natural_gas,
+        'Heating_Central': is_central,
+        'Heating_Electric': is_electric,
+        'Heating_Stove': is_stove
     }
     
     feature_array = [features.get(col, 0) for col in feature_columns]
@@ -426,7 +454,9 @@ async def predict(prop: PropertyInput):
         'building_age': prop.building_age,
         'floor': prop.floor,
         'num_floors': prop.num_floors,
-        'bathrooms': prop.bathrooms
+        'bathrooms': prop.bathrooms,
+        'available_for_loan': prop.available_for_loan,
+        'heating': prop.heating
     }
     
     features = engineer_features(input_data)
@@ -489,7 +519,9 @@ async def quick_check(
     rooms: int,
     asking_price: float,
     building_age: float = 10,
-    purpose: Optional[str] = None
+    purpose: Optional[str] = None,
+    heating: Optional[str] = None,
+    available_for_loan: Optional[bool] = None
 ):
     if district not in district_enc:
         raise HTTPException(status_code=400, detail=f"Bilinmeyen ilce: {district}")
@@ -503,7 +535,9 @@ async def quick_check(
         'building_age': building_age,
         'floor': 2,
         'num_floors': 5,
-        'bathrooms': 1
+        'bathrooms': 1,
+        'available_for_loan': available_for_loan,
+        'heating': heating
     }
     
     features = engineer_features(input_data)
@@ -765,17 +799,22 @@ async def train_with_new_data(data: TrainingData):
         combined_df = pd.concat([df_compare, new_df], ignore_index=True)
         
         # Feature engineering
-        combined_df['features'] = combined_df.apply(lambda row: engineer_features({
-            'district': row['District'],
-            'neighborhood': row['Neighborhood'],
-            'net_m2': row['Net_m2'],
-            'gross_m2': row['Net_m2'] * 1.15,
-            'rooms': row['Rooms'],
-            'building_age': row['Building_Age'],
-            'floor': 2,
-            'num_floors': 5,
-            'bathrooms': 1
-        }), axis=1)
+        # Include 'Available for Loan' from dataset if present and pass through to engineer_features
+        def _row_features(row):
+            return engineer_features({
+                'district': row['District'],
+                'neighborhood': row.get('Neighborhood'),
+                'net_m2': row['Net_m2'],
+                'gross_m2': row['Net_m2'] * 1.15,
+                'rooms': row['Rooms'],
+                'building_age': row.get('Building_Age', 10),
+                'floor': 2,
+                'num_floors': 5,
+                'bathrooms': 1,
+                'available_for_loan': row.get('Available for Loan') if 'Available for Loan' in row.index else None
+            })
+
+        combined_df['features'] = combined_df.apply(_row_features, axis=1)
         
         # X ve y hazırla
         X = np.vstack(combined_df['features'].values)

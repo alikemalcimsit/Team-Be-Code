@@ -21,7 +21,9 @@ export default function PredictPrice() {
     building_age: '',
     floor: '',
     num_floors: '',
-    bathrooms: ''
+    bathrooms: '',
+    available_for_loan: '',
+    heating: ''
   })
 
   const [result, setResult] = useState(null)
@@ -34,14 +36,6 @@ export default function PredictPrice() {
     return numbers
   }
 
-  const parseRooms = (roomsStr) => {
-    if (!roomsStr) return 0
-    // Handle "3+1" format -> 4, "Stüdyo" -> 1
-    if (roomsStr === 'Stüdyo') return 1
-    const parts = roomsStr.split('+').map(Number)
-    return parts.reduce((a, b) => a + b, 0)
-  }
-
   const handleSubmit = async (e) => {
     e.preventDefault()
     setLoading(true)
@@ -52,7 +46,7 @@ export default function PredictPrice() {
     const payload = {
       district: formData.district,
       net_m2: Number(formData.net_m2) || Number(formData.gross_m2),
-      rooms: parseRooms(formData.rooms) || 0
+      rooms: Number(formData.rooms) || 0
     }
 
     // Add optional fields only if provided
@@ -62,6 +56,8 @@ export default function PredictPrice() {
     if (formData.floor) payload.floor = Number(formData.floor)
     if (formData.num_floors) payload.num_floors = Number(formData.num_floors)
     if (formData.bathrooms) payload.bathrooms = Number(formData.bathrooms)
+    if (formData.available_for_loan) payload.available_for_loan = formData.available_for_loan === 'true'
+    if (formData.heating) payload.heating = formData.heating
 
     try {
       const response = await fetch('http://localhost:8000/predict', {
@@ -158,25 +154,19 @@ export default function PredictPrice() {
 
               {/* Oda Sayısı - Required */}
               <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
                   Oda Sayısı <span className="text-orange-500">*</span>
                 </label>
-                <div className="grid grid-cols-3 gap-3">
-                  {['Stüdyo', '1+1', '2+1', '3+1', '4+1', '5+1'].map(room => (
-                    <button
-                      key={room}
-                      type="button"
-                      onClick={() => setFormData({ ...formData, rooms: room })}
-                      className={`px-4 py-3 rounded-xl font-medium transition-all duration-200 ${
-                        formData.rooms === room
-                          ? 'bg-gray-900 text-white shadow-lg'
-                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                      }`}
-                    >
-                      {room}
-                    </button>
-                  ))}
-                </div>
+                <input
+                  type="number"
+                  value={formData.rooms}
+                  onChange={(e) => setFormData({ ...formData, rooms: e.target.value })}
+                  placeholder="Örn: 4 (3+1 ev için 4 girin)"
+                  className="w-full px-4 py-3 bg-white border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent text-gray-900 placeholder-gray-400"
+                  min="1"
+                  step="1"
+                />
+                <p className="text-xs text-gray-500 mt-1">3+1 ev için 4, 2+1 ev için 3 gibi toplam oda sayısını girin</p>
               </div>
 
               {/* Bina Yaşı - Optional */}
@@ -225,6 +215,39 @@ export default function PredictPrice() {
                   placeholder="Örn: 2"
                   className="w-full px-4 py-3 bg-white border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent text-gray-900 placeholder-gray-400"
                 />
+              </div>
+
+              {/* Krediye Uygunluk - Optional */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Krediye Uygunluk (Opsiyonel)</label>
+                <select
+                  value={formData.available_for_loan}
+                  onChange={(e) => setFormData({ ...formData, available_for_loan: e.target.value })}
+                  className="w-full px-4 py-3 bg-white border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent text-gray-900"
+                >
+                  <option value="">Seçiniz</option>
+                  <option value="true">Evet</option>
+                  <option value="false">Hayır</option>
+                </select>
+              </div>
+
+              {/* Isıtma Sistemi - Optional */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Isıtma Sistemi (Opsiyonel)</label>
+                <select
+                  value={formData.heating}
+                  onChange={(e) => setFormData({ ...formData, heating: e.target.value })}
+                  className="w-full px-4 py-3 bg-white border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent text-gray-900"
+                >
+                  <option value="">Seçiniz</option>
+                  <option value="Doğalgaz">Doğalgaz</option>
+                  <option value="Merkezi Sistem">Merkezi Sistem</option>
+                  <option value="Kombi">Kombi</option>
+                  <option value="Soba">Soba</option>
+                  <option value="Klima">Klima</option>
+                  <option value="Yerden Isıtma">Yerden Isıtma</option>
+                  <option value="Diğer">Diğer</option>
+                </select>
               </div>
 
               {/* Submit Button */}
