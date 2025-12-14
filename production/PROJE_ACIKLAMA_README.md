@@ -24,7 +24,7 @@ Bu proje, Türkiye'deki konut piyasasında, kullanıcıların girdiği ev özell
 5. **/quick-check:** Hızlı fiyat ve piyasa karşılaştırması yapar.
 
 ## Model Nasıl Eğitildi?
-- 27.000+ gerçek ilan verisiyle, 22 mühendislik özelliği kullanılarak stacking ensemble modeli eğitildi.
+- 27.000+ gerçek ilan verisiyle, 27 mühendislik özelliği kullanılarak stacking ensemble modeli eğitildi.
 - İlçe ve mahalle encoding, metrekare, oda, yaş, lüks/bütçe bölge gibi domain bilgisiyle zenginleştirildi.
 - Model, hem genel hem de bölgesel fiyat dağılımlarını dikkate alır.
 

@@ -79,9 +79,9 @@ district_stats['enc'] = (district_stats['mean'] * district_stats['count'] + glob
 
 **Neden smoothing?** Nadir ilçelerde overfitting'i önlemek için global ortalama ile karıştırılır.
 
-### 22 Minimal Özellik Seti
+### 27 Minimal Özellik Seti
 
-#### 1. Temel Özellikler (Core Features - 7 adet)
+#### 1. Temel Özellikler (Core Features - 9 adet)
 - `Net_m2`: Net metrekare
 - `Rooms`: Oda sayısı (sayısal)
 - `Building_Age`: Bina yaşı
